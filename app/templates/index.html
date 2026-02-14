@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ARAL Security</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<nav class="navbar">
+    <div class="logo">
+        ARAL <span class="accent">Security</span>
+    </div>
+    <div class="nav-links">
+        <a href="#">Dashboard</a>
+        <a href="#">Scans</a>
+        <a href="#">Reports</a>
+        <a href="#">Settings</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1>Kubernetes Security Intelligence</h1>
+    <p class="subtitle">Scan infrastructure before attackers do.</p>
+
+    <div class="upload-box">
+        <form action="/scan" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" required>
+            <br>
+            <button type="submit" onclick="showLoading()">Scan Now</button>
+        </form>
+    </div>
+
+    {% if not result and not error %}
+    <div class="empty-state">
+        <p>No scans yet. Upload a Kubernetes YAML file to begin.</p>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="error">
+        {{ error }}
+    </div>
+    {% endif %}
+
+    {% if result %}
+    <div class="results">
+
+        <h2 class="result-title">Scan Summary</h2>
+
+        <div class="cards">
+            <div class="card critical">
+                <h3>Critical</h3>
+                <p>{{ result.critical }}</p>
+            </div>
+            <div class="card high">
+                <h3>High</h3>
+                <p>{{ result.high }}</p>
+            </div>
+            <div class="card medium">
+                <h3>Medium</h3>
+                <p>{{ result.medium }}</p>
+            </div>
+            <div class="card low">
+                <h3>Low</h3>
+                <p>{{ result.low }}</p>
+            </div>
+            <div class="card total">
+                <h3>Total</h3>
+                <p>{{ result.total }}</p>
+            </div>
+        </div>
+
+        {% if result.findings %}
+        <div class="table-container">
+            <h2>Detected Issues</h2>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Title</th>
+                        <th>Severity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in result.findings %}
+                    <tr>
+                        <td>{{ item.id }}</td>
+                        <td>{{ item.title }}</td>
+                        <td class="severity {{ item.severity|lower }}">
+                            {{ item.severity }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% endif %}
+
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function showLoading() {
+    document.querySelector("button").innerText = "Scanning...";
+}
+</script>
+
+</body>
+</html>
